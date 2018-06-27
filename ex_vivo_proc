@@ -1,0 +1,23 @@
+dwiextract cat_all.mif -no_bzero no_bzero.mif
+dwiextract cat_all.mif -bzero bzero.mif
+mrcat bzero.mif no_bzero.mif dwi_pre.mif
+dwidenoise dwi_pre.mif dwi_denoised.mif
+mrinfo dwi_denoised.mif -export_grad_mrtrix b.txt -bvalue_scaling false
+dwiextract -bvalue_scaling false -shell 1000 dwi_denoised.mif - | mrmath -axis 3 - mean avb1000.mif
+inb_eddy_correct.sh dwi_denoised.mif dwi_denoised_eddycorr.mif avb1000.mif fsl
+mrconvert dwi_denoised_eddycorr.mif dwi_denoised_eddycorr_grad.mif -grad b.txt
+inb_dwibiascorrect.sh dwi_denoised_eddycorr_grad.mif nomask dwi_proc.mif "-s 2 -v -b 6x6x6x3"
+dwi2tensor dwi_proc.mif dt.mif
+tensor2metric -fa fa.mif -adc adc.mif -vector vec.mif -ad ad.mif -rd rd.mif dt.mif
+dwi2response dhollander dwi_proc.mif out_wm.txt out_gm.txt out_csf.txt
+dwi2fod msmt_csd dwi_proc.mif out_wm.txt fod_wm.mif out_gm.txt fod_gm.mif out_csf.txt fod_csf.mif
+fod2fixel fod_wm.mif fixel -afd afd.mif -peak peak.mif -disp disp.mif
+cd fixel
+fixel2voxel afd.mif sum afd_sum.mif
+fixel2voxel afd.mif mean afd_mean.mif
+fixel2voxel peak.mif sum peak_sum.mif
+fixel2voxel peak.mif mean peak_mean.mif
+fixel2voxel disp.mif sum disp_sum.mif
+fixel2voxel disp.mif mean disp_mean.mif
+cd ..
+mrview dwi_proc.mif
