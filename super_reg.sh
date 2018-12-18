@@ -130,7 +130,8 @@ fixel2voxel disp.mif split_data disp_split.mif
 
 
 cd ..
-rm avb* b1000* b3000* b5000* b7000* dwi1000* dwi3000* dwi5000* dwi7000* no_bzero* bzero.mif bzero_5.mif concat_b0* dwi_cat_all_no* no_bzero* bzero.mif bzero_5.mif concat_b0* dwi_cat_all_no* dwi_proc_bias* dwi_cat_grad.mif dwi_deno* bzero_cropp* dwi_pre* bzero_5_mean*
+rm avb* b1000* b3000* b5000* b7000* dwi1000* dwi3000* dwi5000* dwi7000* no_bzero* bzero.mif bzero_5.mif concat_b0* dwi_cat_all_no* dwi_proc_bias* dwi_cat_grad.mif dwi_deno* bzero_cropp* dwi_pre* bzero_5_mean*
+
 mrview dwi_proc.mif
 
 
