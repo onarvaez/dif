@@ -1,0 +1,1 @@
+for file in *_*.txt; do mv "$file" "${file/__/_and_}"; done
