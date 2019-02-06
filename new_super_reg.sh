@@ -67,13 +67,13 @@ mrmath -axis 3 b7000_cat.mif mean avb7000.nii.gz
 mrcat bzero_cat.mif b1000_cat.mif b3000_cat.mif b5000_cat.mif b7000_cat.mif dwi_no_grad.mif
 
 mrconvert dwi_no_grad.mif  -grad b.txt dwi_proc.mif
-fslmaths avbzero.nii.gz -thr 400 -bin avbzero_mask.nii.gz
+fslmaths avbzero.nii.gz -thr 150 -bin avbzero_mask.nii.gz
 
 dwi2tensor dwi_proc.mif -mask avbzero_mask.nii.gz dt.mif
 tensor2metric dt.mif -fa fa.mif -vector vector.mif -adc adc.mif -ad ad.mif -rd rd.mif
 
-dwi2response dhollander bet_grad.mif -info out_wm.txt out_gm.txt out_csf.txt
-dwi2fod msmt_csd dwi_proc.mif -mask avbzero_mask.nii.gz out_wm.txt fod_wm.mif out_gm.txt fod_gm.mif out_csf.txt fod_csf.mif
+dwi2response dhollander dwi_proc.mif -info out_wm.txt out_gm.txt out_csf.txt
+dwi2fod dwi_proc.mif -mask avbzero_mask.nii.gz out_wm.txt fod_wm.mif out_gm.txt fod_gm.mif out_csf.txt fod_csf.mif
 fod2fixel fod_wm.mif -mask avbzero_mask.nii.gz fixel -afd afd.mif -peak peak.mif -disp disp.mif
 cd fixel
 fixel2voxel afd.mif sum afd_sum.mif
