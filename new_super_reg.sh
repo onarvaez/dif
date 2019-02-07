@@ -74,7 +74,9 @@ tensor2metric dt.mif -fa fa.mif -vector vector.mif -adc adc.mif -ad ad.mif -rd r
 
 dwi2response dhollander dwi_proc.mif -info out_wm.txt out_gm.txt out_csf.txt -voxels csd_voxel.mif
 dwi2fod msmt_csd dwi_proc.mif -mask avbzero_mask.nii.gz out_wm.txt fod_wm.mif out_gm.txt fod_gm.mif out_csf.txt fod_csf.mif
-fod2fixel fod_wm.mif -mask avbzero_mask.nii.gz fixel -afd afd.mif -peak peak.mif -disp disp.mif
+mrconvert -coord 3 0 fod_wm.mif - | mrcat fod_csf.mif fod_gm.mif - vf.mif
+mtnormalise fod_wm.mif wmfod_norm.mif fod_gm.mif gmfod_norm.mif fod_csf.mif csffod_norm.mif -mask avbzero_mask.nii.gz
+fod2fixel wmfod_norm.mif -mask avbzero_mask.nii.gz fixel -afd afd.mif -peak peak.mif -disp disp.mif
 cd fixel
 fixel2voxel afd.mif sum afd_sum.mif
 fixel2voxel afd.mif mean afd_mean.mif
