@@ -88,3 +88,5 @@ fixel2voxel disp.mif sum disp_sum.mif
 fixel2voxel disp.mif mean disp_mean.mif
 fixel2voxel disp.mif split_data disp_split.mif
 cd ..
+
+rm avb1000.nii.gz avb3000.nii.gz avb5000.nii.gz avb7000.nii.gz avbzero_5_mask.nii.gz avbzero_5.nii.gz avbzero.nii.gz b1000.nii.gz b3000_cat.mif b3000.nii.gz b5000_cat.mif b5000.nii.gz b7000_cat.mif b7000.nii.gz bias.mif b.txt bzero_cat.mif bzero_cropped.nii.gz bzero.mif dwi_denoised_crop_gibbs.mif dwi_denoised_crop.mif dwi_denoised_crop_unbias.mif dwi_no_grad.mif dwi_pre_crop.mif dwi_pre.mif no_bzero.mif
