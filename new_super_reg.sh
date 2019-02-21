@@ -9,7 +9,7 @@ mrinfo dwi_denoised_crop_unbias.mif -export_grad_mrtrix b.txt -bvalue_scaling fa
 dwiextract dwi_denoised_crop_unbias.mif  -bzero bzero_cropped.nii.gz
 fslsplit bzero_cropped.nii.gz
 mrcat vol0000.nii.gz vol0001.nii.gz vol0002.nii.gz vol0003.nii.gz vol0004.nii.gz - | mrmath -axis 3 - mean avbzero_5.nii.gz
-fslmaths avbzero_5.nii.gz -thr 400 -bin avbzero_5_mask.nii.gz
+fslmaths avbzero_5.nii.gz -thr 110 -bin avbzero_5_mask.nii.gz
 
 for i in vol*.nii.gz
   do
