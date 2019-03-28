@@ -93,5 +93,5 @@ rm avb1000.nii.gz avb3000.nii.gz avb5000.nii.gz avb7000.nii.gz avbzero_5_mask.ni
 
 
 
-tckgen wmfod_norm.mif -seed_image optic_nerves_roi.mif -include supra_chiasm_roi.mif -exclude optic_tracts.mif suprachiasm.tck -select 1000000
-tckgen wmfod_norm.mif -seed_image optic_nerves_roi.mif -include optic_tracts.mif -exclude supra_chiasm_roi.mif optic_visual.tck -select 1000000
+tckgen wmfod_norm.mif -seed_image optic_nerves_roi.mif -include supra_chiasm_roi.mif -exclude optic_tracts_roi.mif suprachiasm.tck -select 1000000
+tckgen wmfod_norm.mif -seed_image optic_nerves_roi.mif -include optic_tracts_roi.mif -exclude supra_chiasm_roi.mif optic_visual.tck -select 1000000
