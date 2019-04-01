@@ -104,3 +104,5 @@ tckedit suprachiasm_sift.tck -include optic_nerves_roi_r.mif -include supra_chia
 tckedit suprachiasm_sift.tck -include optic_nerves_roi_l.mif -include supra_chiasm_roi_l.mif -exclude supra_chiasm_roi_r.mif suprachiasm_sift_ipsi_l.tck
 tckedit suprachiasm_sift.tck -include optic_nerves_roi_l.mif -include supra_chiasm_roi_r.mif -exclude supra_chiasm_roi_l.mif suprachiasm_sift_contra_l.tck
 
+tckedit optic_visual_sift.tck -include optic_nerves_roi_l.mif -include optic_tracts_roi_r.mif -exclude optic_tracts_roi_l.mif -exclude supra_chiasm_roi_l.mif -exclude supra_chiasm_roi_r.mif optic_tract_sift_contra_l.tck
+tckedit optic_visual_sift.tck -include optic_nerves_roi_r.mif -include optic_tracts_roi_l.mif -exclude optic_tracts_roi_r.mif -exclude supra_chiasm_roi_l.mif -exclude supra_chiasm_roi_r.mif optic_tract_sift_contra_r.tck
