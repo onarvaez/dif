@@ -16,18 +16,24 @@ mrcat 500.mif 1500.mif 2500.mif 3500.mif 4500.mif 5500.mif cat_all.mif
 
 mkdir analisis 
 mv cat_all.mif analisis 
+mv b_cor.txt analisis
 cd analisis 
-
-dwidenoise cat_all.mif dwi_pre_den.mif
+####DENOISE AND GIBBS
+dwidenoise cat_all.mif dwi_pre_den.mif -nthreads 12
 mrdegibbs dwi_pre_den.mif dwi_pre_den_gibbs.mif
-mrmath -axis 3 dwi_pre_den.mif mean mean_dwi.mif
+mrmath -axis 3 dwi_pre_den_gibbs.mif mean mean_dwi.mif
 mrconvert mean_dwi.mif mean_dwi.nii.gz
 fslmaths mean_dwi.nii.gz -thr 14000 -bin mean_mask.nii.gz
-mrview mean_mask.nii.gz
- 
+mrinfo result.mif -export_grad_mrtrix b.txt -bvalue_scaling false
+mrconvert dwi_pre_den_gibbs.mif -grad b_cor.txt dwi_proc_no_bias.mif
 
-mrinfo dwi_pre_den_gibbs.mif -export_grad_mrtrix b.txt -bvalue_scaling false
-mrconvert dwi_pre_den_gibbs.mif -grad b_cor.txt dwi_proc.mif
+##### BIAS
+dwiextract -bvalue_scaling false -shell 58 dwi_proc_no_bias.mif - | mrmath - mean mean_bzero.mif -axis 3
+mrconvert mean_bzero.mif mean_bzero.nii.gz -stride +1,+2,+3
+mrconvert mean_mask.nii.gz mean_mask_mask.nii.gz -stride +1,+2,+3
+N4BiasFieldCorrection -d 3 -i mean_bzero.nii.gz -w mean_mask_mask.nii.gz -o [corrected.nii.gz, bias.nii.gz] -b [7,3] -c [700,0.0] -v
+mrcalc dwi_proc_no_bias.mif bias.nii.gz -div dwi_proc.mif
+#mrview mean_mask.nii.gz
 
 mkdir motion
 mv dwi_proc.mif motion
@@ -153,17 +159,16 @@ mrconvert b4500_cat.nii.gz -grad b4500.txt b4500_cat.mif
 mrconvert b5500_cat.nii.gz -grad b5500.txt b5500_cat.mif
 
 mrcat b0_cat.mif b500_cat.mif b1500_cat.mif b2500_cat.mif b3500_cat.mif b4500_cat.mif b5500_cat.mif dwi_proc_motion.mif 
+mv dwi_proc_motion.mif ../
+cd ..
+rm -R motion
+rm b.txt dwi_pre_den_gibbs.mif dwi_pre_den.mif mean_dwi.mif mean_dwi.nii.gz 
+rm corrected.nii.gz dwi_proc_no_bias.mif mean_bzero.mif mean_bzero.nii.gz mean_mask_mask.nii.gz
 
-############################
-
-
-
-
-
-
-
+########################## TENSOR
 dwi2tensor dwi_proc_motion.mif -mask mean_mask.nii.gz dt.mif
 tensor2metric dt.mif -fa fa.mif -adc adc.mif -rd rd.mif -ad ad.mif -vector vec.mif
+###### CSD
 
 dwi2response dhollander dwi_proc.mif -mask mean_mask.nii.gz -info out_wm.txt out_gm.txt out_csf.txt -voxels csd_voxel.mif
 
@@ -186,52 +191,7 @@ fixel2voxel disp.mif split_data disp_split.mif
 cd ..
 
 
-
-
-
-
-
-
-
-dwi2mask dwi_pre_den.mif mask.mif 
-dwiextract -bvalue_scaling false -shell 55 dwi_pre_den.mif  b55.mif 
-dwiextract -bvalue_scaling false -shell 5500 dwi_pre_den.mif  b5500.nii.gz 
-
-fslsplit b5500.nii.gz
-mrcat vol0000.nii.gz vol0001.nii.gz vol0002.nii.gz - | mrmath -axis 3 - mean avb5500_3.nii.gz
-fslmaths avb5500_3.nii.gz -thr 110 -bin avb5500_3_mask.nii.gz
-
-
-for i in vol*.nii.gz
-  do
-vol=$(echo $i | cut -d '.' -f 1)
-antsRegistration --verbose 1 --dimensionality 3 --output [${i},${vol}_mean_Warped.nii.gz,${vol}_mean_InverseWarped0.nii.gz] --interpolation Linear --winsorize-image-intensities [0.009,0.991] --initial-moving-transform [mean_bzero.nii.gz,${i},0] --transform Rigid[0.08] --metric MI[mean_bzero.nii.gz,${i},0.7,32,Regular,0.25] --convergence [1000x500x250x100,1e-6,30] --shrink-factors 8x4x2x1 --smoothing-sigmas 0.5x0x0x0vox --transform Affine[0.08] --metric MI[mean_bzero.nii.gz,${i},0.7,32,Regular,0.25] --convergence [1000x500x250x100,1e-6,30] --shrink-factors 8x4x2x1 --smoothing-sigmas 0.5x0x0x0vox  --float 0 --collapse-output-transforms 1 --use-histogram-matching 1 -x [mean_mask.nii.gz]
-done
-mrcat vol*_mean_Warped.nii.gz b500_cat.mif
-rm vol*
-mrmath -axis 3 b500_cat.mif mean avb500.nii.gz
-
-
-fslsplit b3500.nii.gz
-for i in vol*.nii.gz
-  do
-vol=$(echo $i | cut -d '.' -f 1)
-antsRegistration --verbose 1 --dimensionality 3 --output [${i},${vol}_mean_Warped.nii.gz,${vol}_mean_InverseWarped0.nii.gz] --interpolation Linear --winsorize-image-intensities [0.009,0.991] --initial-moving-transform [avb2500.nii.gz,${i},0] --transform Rigid[0.08] --metric MI[avb2500.nii.gz,${i},0.7,32,Regular,0.25] --convergence [1000x500x250x100,1e-6,30] --shrink-factors 8x4x2x1 --smoothing-sigmas 0.5x0x0x0vox --transform Affine[0.08] --metric MI[avb2500.nii.gz,${i},0.7,32,Regular,0.25] --convergence [1000x500x250x100,1e-6,30] --shrink-factors 8x4x2x1 --smoothing-sigmas 0.5x0x0x0vox  --float 0 --collapse-output-transforms 1 --use-histogram-matching 1 -x [mean_mask.nii.gz]
-done
-mrcat vol*_mean_Warped.nii.gz b3500_cat.mif
-rm vol*
-mrmath -axis 3 b3500_cat.mif mean avb3500.nii.gz
-
-
-
-
-mrcat b55.mif b5500_cat.mif dwi_proc_no_grads.mif
-
-dwi2tensor dwi_proc_grads.mif dt_5500.mif 
-
-fslsplit b5500.nii.gz
-
-
+############END
 
 tckedit optic_visual_sift.tck -include optic_nerves_roi_l.mif -include optic_tracts_roi_l.mif -exclude optic_tracts_roi_r.mif -exclude supra_chiasm_roi_l.mif -exclude supra_chiasm_roi_r.mif optic_tract_sift_ipsi_l.tck
 
@@ -262,5 +222,4 @@ mrstats -mask right_roi.mif fixel/peak_mean.mif
 mrstats -mask left_roi.mif fixel/peak_mean.mif
 mrstats -mask right_roi.mif fixel/disp_mean.mif
 mrstats -mask left_roi.mif fixel/disp_mean.mif
-
 
