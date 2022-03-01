@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo 'Which folder?'
+
+read numero
+
+convert_bruker $numero/pdata/1/2dseq $numero.mih 
+
+mrconvert $numero.mih $numero.mif -bvalue_scaling false
+
